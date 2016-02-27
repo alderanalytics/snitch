@@ -9,6 +9,11 @@ import (
 // ErrorDetails hold additional information as part of the ErrorContext.
 type ErrorDetails map[string]interface{}
 
+// NewErrorDetails creates a new ErrorDetails structure.
+func NewErrorDetails() ErrorDetails {
+	return make(ErrorDetails)
+}
+
 // ErrorContext encodes the context of an error for reporting to an ErrorReporter.
 type ErrorContext struct {
 	Error   string
@@ -55,7 +60,7 @@ func (mr *MultiplexingReporter) Notify(ectx *ErrorContext) {
 	}
 }
 
-// AddErrorReporter adds an ErrorReporter to a MultiplexingReporter.
+// AddReporter adds an ErrorReporter to a MultiplexingReporter.
 func (mr *MultiplexingReporter) AddReporter(r ErrorReporter) {
 	mr.Mutex.Lock()
 	defer mr.Mutex.Unlock()
