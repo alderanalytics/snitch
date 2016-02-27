@@ -1,7 +1,9 @@
 package snitch
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"runtime"
 	"sync"
 )
@@ -66,4 +68,26 @@ func (mr *MultiplexingReporter) AddReporter(r ErrorReporter) {
 	defer mr.Mutex.Unlock()
 
 	mr.ErrorReporters = append(mr.ErrorReporters, r)
+}
+
+// PanicMonitor reports panics via the given ErrorReporter.
+func PanicMonitor(er ErrorReporter) {
+	if err := recover(); err != nil {
+		if er != nil {
+			er.Notify(&ErrorContext{
+				Error: fmt.Sprintf("panic: %s", err),
+			})
+		}
+
+		panic(err)
+	}
+}
+
+// PanicMonitorHandler reports panics while handling HTTP requests via the given
+// ErrorReporter.
+func PanicMonitorHandler(er ErrorReporter, h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		PanicMonitor(er)
+		h.ServeHTTP(w, r)
+	})
 }
