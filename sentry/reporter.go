@@ -12,6 +12,7 @@ type SentryReporter struct {
 	client *raven.Client
 }
 
+// NewSentryReporter creates a new sentry reporter from a raven client.
 func NewSentryReporter(client *raven.Client) *SentryReporter {
 	return &SentryReporter{client: client}
 }
